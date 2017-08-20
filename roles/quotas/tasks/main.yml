@@ -1,0 +1,9 @@
+---
+- name: set quotas for project
+  shell: |
+    openstack --os-cloud default quota set \
+      --instances "{{ openstack.quotas.instances }}" \
+      --cores "{{ openstack.quotas.cores }}" \
+      --ram "{{ openstack.quotas.ram }}" \
+      --secgroups "{{ openstack.quotas.security_groups }}" \
+      --secgroup-rules "{{ openstack.quotas.security_group_rules }}" {{ openstack.project.name }}

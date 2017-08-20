@@ -1,0 +1,68 @@
+---
+- name: Check project settings
+  hosts: local
+  gather_facts: no
+  tasks:
+    - os_project_facts: # Generates the openstack_projects variable
+        name: "{{ openstack.project.name }}"
+        cloud: "default"
+
+- name: Remove all known_hosts entries for vms in environment being destroyed.
+  hosts: vms
+  gather_facts: no
+  tasks:
+    - name: "remove vm from known_hosts"
+      shell: "ssh-keygen -R {{ item.name }}"
+      with_items: "{{ vms }}"
+      tags: [ known_hosts ]
+
+- name: Remove all keypairs and stackrc from localhost associated with environment being destroyed.
+  hosts: local
+  gather_facts: no
+  tasks:
+    - name: "remove environment keys and stackrc"
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "~/.ssh/{{ env.keyname }}"
+        - "~/.ssh/{{ env.keyname }}.pub"
+        - "~/{{ env.name }}.stackrc"
+      tags: [ key ]
+
+- name: Remove all openstack uploaded keys for environment being destroyed.
+  hosts: local
+  gather_facts: no
+  tasks:
+    - name: Delete uploaded key
+      os_keypair:
+        cloud: "default"
+        state: absent
+        name: "{{ openstack.keypairs.name }}"
+      tags: [ os_key ]
+
+- name: Remove all vms and their floating ips for environment being destroyed.
+  hosts: vms
+  gather_facts: no
+  tasks:
+    - register: vm_info
+      os_server:
+        cloud: "default"
+        auth:
+          project_name: "{{ openstack.project.name }}"
+        state: absent
+        name: "{{ item.name }}"
+        delete_fip: true
+      with_items: "{{ vms }}"
+      tags: [ vms ]
+
+- name: Remove project for environment being destroyed.
+  hosts: local
+  gather_facts: no
+  tasks:
+    - name: Delete Project
+      os_project:
+        cloud: "default"
+        state: absent
+        name: "{{ openstack.project.name }}"
+      tags: [ project ]

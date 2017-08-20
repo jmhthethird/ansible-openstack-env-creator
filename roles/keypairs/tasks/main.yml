@@ -1,0 +1,8 @@
+---
+- name: upload/create user keypairs
+  os_keypair:
+    cloud: "default"
+    state: present
+    name: "{{ openstack.keypairs.name }}"
+    public_key_file: "/home/ubuntu/.ssh/{{ env.keyname|default(omit) }}.pub"
+    cacert: "{{ openstack.ssl.cert|default(omit) }}"

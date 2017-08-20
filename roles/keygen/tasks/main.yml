@@ -1,0 +1,21 @@
+---
+- name: "Check if SSH key is already generated"
+  stat:
+    path: "~/.ssh/{{ env.keyname }}"
+  register: ssh_key_stats
+
+- name: "Generate SSH key if it doesn't exist"
+  shell: "ssh-keygen -b 4096 -t rsa -f ~/.ssh/{{ env.keyname }} -q -N ''"
+  when: ssh_key_stats.stat.exists == False
+
+- name: "Ensure SSH directory perms are correct"
+  file:
+    path: "~/.ssh/"
+    state: directory
+    mode: "0700"
+
+- name: "Ensure SSH key perms are correct"
+  file:
+    path: "~/.ssh/{{ env.keyname }}"
+    state: file
+    mode: "0600"

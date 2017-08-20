@@ -1,0 +1,7 @@
+---
+- name: add stackrc
+  template:
+    src: stackrc.j2
+    dest: "{{ deployer.user.home }}/bps-{{ env.name }}.stackrc"
+    owner: "{{ deployer.user.name }}"
+    group: "{{ deployer.user.group }}"

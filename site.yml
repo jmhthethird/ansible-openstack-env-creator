@@ -1,0 +1,25 @@
+---
+- name: OpenStack Project Creation
+  hosts: local
+  gather_facts: no
+  roles:
+    - role: keygen
+      tags: [ keygen ]
+
+    - role: project
+      tags: [ project ]
+
+    - role: quotas
+      tags: [ quotas ]
+
+    - role: security_groups
+      tags: [ security_groups ]
+
+    - role: keypairs
+      tags: [ keypairs ]
+
+    - role: vms
+      tags: [ vms ]
+
+    - role: stackrc
+      tags: [ stackrc ]

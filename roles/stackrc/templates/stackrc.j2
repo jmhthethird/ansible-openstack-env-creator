@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+
+{% if deployer.stackrc.api_version is defined %}
+export OS_IDENTITY_API_VERSION={{ deployer.stackrc.api_version }}
+{% endif %}
+export OS_USERNAME={{ deployer.stackrc.username }}
+export OS_PASSWORD={{ deployer.stackrc.password }}
+export OS_AUTH_URL=https://{{ deployer.stackrc.auth_url }}
+export OS_PROJECT_NAME={{ deployer.stackrc.project }}
+export OS_CACERT={{ deployer.stackrc.cacert|default("") }}
+export OS_USER_DOMAIN_NAME=${OS_USER_DOMAIN_NAME:-"{{ deployer.stackrc.user_domain_name }}"}
+export OS_PROJECT_DOMAIN_NAME=${OS_PROJECT_DOMAIN_NAME:-"{{ deployer.stackrc.project_domain_name }}"}
+export OS_NO_CACHE=1

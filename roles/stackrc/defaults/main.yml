@@ -1,0 +1,15 @@
+---
+deployer:
+  user:
+    name: "ubuntu"
+    group: "ubuntu"
+    home: "/home/ubuntu"
+  stackrc:
+    api_version: 3
+    project: "{{ openstack.project.name }}"
+    username: "{{ openstack.admin.name }}"
+    password: "{{ openstack_admin_password }}"
+    auth_url: "{{ openstack.api.fqdn }}:{{ openstack.api.port }}/{{ openstack.api.version }}"
+    cacert: "/etc/ssl/certs/ca-certificates.crt"
+    user_domain_name: "Default"
+    project_domain_name: "Default"

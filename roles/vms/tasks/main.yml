@@ -1,0 +1,18 @@
+---
+- register: vm_info
+  os_server:
+    cloud: "default"
+    auth:
+      project_name: "{{ openstack.project.name }}"
+    state: present
+    name: "{{ item.name }}"
+    image: "{{ item.image_id }}"
+    key_name: "{{ item.key_name }}"
+    flavor: "{{ item.flavor_id }}"
+    nics:
+      - net-id: "{{ item.net_id }}"
+    auto_ip: "{{ item.auto_floating_external_ip }}"
+    security_groups: "{{ item.security_groups }}"
+    meta:
+      groups: "{{ item.meta.groups }}"
+  with_items: "{{ vms }}"

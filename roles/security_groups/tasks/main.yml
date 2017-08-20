@@ -1,0 +1,39 @@
+---
+- name: create sec-groups
+  os_security_group:
+    auth:
+      project_name: "{{ openstack.project.name }}"
+    cloud: "default"
+    state: present
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+  with_items: "{{ openstack.security_groups }}"
+  tags: [ sec_groups ]
+
+- name: create sec-group rules
+  os_security_group_rule:
+    cloud: "default"
+    auth:
+      project_name: "{{ openstack.project.name }}"
+    security_group: "{{ item.0.name }}"
+    protocol: "{{ item.0.protocol|default(omit) }}"
+    port_range_min: "{{ item.0.from_port|default(omit) }}"
+    port_range_max: "{{ item.0.to_port|default(omit) }}"
+    remote_ip_prefix: "{{ item.1|default(omit) }}"
+  with_subelements:
+    - "{{ openstack.security_group_rules }}"
+    - networks
+  tags: [ sec_group_rules ]
+
+- name: create source group rules
+  os_security_group_rule:
+    cloud: "default"
+    auth:
+      project_name: "{{ openstack.project.name }}"
+    security_group: "{{ item.name }}"
+    protocol: "{{ item.protocol|default(omit) }}"
+    port_range_min: "{{ item.from_port|default(omit) }}"
+    port_range_max: "{{ item.to_port|default(omit) }}"
+    remote_group: "{{ item.remote_group }}"
+  with_items: "{{ openstack.security_source_group_rules }}"
+  tags: [ source_group_rules ]

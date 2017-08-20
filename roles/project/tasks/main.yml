@@ -1,0 +1,17 @@
+---
+- name: create project
+  os_project:
+    cloud: "default"
+    domain_id: "{{ openstack.domain_id }}"
+    name: "{{ openstack.project.name }}"
+    description: "{{ openstack.project.description }}"
+    enabled: True
+    state: present
+
+- name: assign admin user role to project
+  os_user_role:
+    cloud: "default"
+    user: "{{ openstack.admin.name }}"
+    role: "{{ item }}"
+    project: "{{ openstack.project.name }}"
+  with_items: "{{ openstack.project.user_role_list }}"

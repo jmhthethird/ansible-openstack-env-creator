@@ -1,0 +1,55 @@
+#!/bin/bash
+
+usage() {
+cat << EOF
+
+usage: $0 -e {qa*|staging*|prod*} -a ansible_args
+
+This script deploys the vars created by ansible-openstack-env-template which will create and deploy and OpenStack project.
+
+REQUIRED FLAGS:
+  -e      environment {qa*|staging*|prod*}
+
+OPTIONAL FLAGS:
+  -a      ansible playbook args
+  -h      Show this message
+EOF
+}
+
+validate_env() {
+  if [[ $1 != "qa"* ]] && [[ $1 != "staging"* ]] && [[ $1 != "production"* ]] && [[ $1 != "prod"* ]] && [[ $1 != "china"* ]]; then
+    echo "Error: Invalid Environment Specified: '$1'"
+    usage
+    exit 1
+  fi
+  environment=$( [ "$1" = "production" ] && echo "prod" || echo "$1")
+}
+
+while getopts "h:e:a:" OPT; do
+  case $OPT in
+  h)
+    usage
+    exit 1
+    ;;
+  a)
+    ansible_args=$OPTARG
+    ;;
+  e)
+    validate_env $OPTARG
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+  esac
+done
+
+if [ -z $environment ]; then
+  usage
+else
+  ost_envs_co=$(cd ../ansible-openstack-env-vars/$environment/ && git branch -vv | grep '*' | awk '{print "[" $2 " - " $3 "]"}')
+  ost_co=$(git branch -vv | grep '*' | awk '{print "[" $2 " - " $3 "]"}')
+
+  echo -e "\nRunning Deployment:\n\tPlaybook Path: $(pwd)\n\tInventory: ../ansible-openstack-env-vars/$environment/hosts\n\tPlaybook: ./site.yml\n\tWith Args: $ansible_args\n\tansible-openstack-env-creator Checkout: $ost_co\n\tansible-openstack-env-vars Checkout: $ost_envs_co"
+  ansible-playbook -i ../ansible-openstack-env-vars/$environment/hosts -c ssh ./site.yml --vault-password-file ~/.vault.txt $ansible_args
+fi
